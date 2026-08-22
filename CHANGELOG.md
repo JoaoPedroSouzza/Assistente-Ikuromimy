@@ -10,6 +10,17 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 
 ---
 
+## [1.13.5] — Bugfix (tentativa)
+
+### Corrigido
+- "Failed to load Python DLL" persistia mesmo com o `.exe` confirmado
+  íntegro (abria normal manualmente, só falhava vindo do atualizador).
+  Suspeita: corrida com o Windows Defender ainda escaneando o arquivo
+  recém-copiado no exato momento em que o script tentava abri-lo.
+  Adicionada uma pausa de 5s entre terminar a cópia e abrir o app, pra
+  dar tempo do antivírus soltar o arquivo. **Diagnóstico best-effort**
+  — sem confirmação ainda de que resolve 100%.
+
 ## [1.13.4] — Bugfix
 
 ### Corrigido
