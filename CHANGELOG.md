@@ -10,6 +10,36 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 
 ---
 
+## [1.14.0] — Assistente IA local (Jarvis)
+
+### Adicionado
+-🤖 Aba IA nova : assistente conversacional local via Ollama (gratuito, sem chave de API, sem custo).
+🧭 Fluxo guiado dentro do app : detecta se o Ollama está instalado/rodando/com modelo baixado, e mostra o botão certo pra cada passo que faltar — sem necessidade de programas terceiros
+🎤 Comando de voz por botão : clica no microfone, fala, o texto vira mensagem automaticamente.
+🎙 Escuta contínua com palavra de ativação : liga o "Ouvir sempre" e ele te ouve o tempo todo, mas só age quando chamado pelo nome "assistente" , após dizer seu nome, diga o pedido
+⚙️ A IA consegue executar comandos reais do assistente durante uma conversa (abrir programas, tocar música, etc.).
+
+## [1.13.8] — Bugfix
+
+### Corrigido
+- **Causa raiz definitiva** do "Failed to load Python DLL" no
+  atualizador: o processo filho (o `.exe` novo, lançado de dentro do
+  próprio app já empacotado) herdava variáveis de ambiente
+  contaminadas do processo pai (PyInstaller onefile), fazendo o
+  bootloader dele falhar ao carregar a DLL do Python. Corrigido
+  reconstruindo um ambiente totalmente limpo do zero pro processo
+  filho (`_ambiente_limpo()`), em vez de tentar remover variáveis
+  pontuais. Confirmado funcionando de ponta a ponta.
+
+
+## [1.13.5] — Bugfix (tentativa)
+
+### Corrigido
+- Adicionada pausa de 5s entre copiar o `.exe` novo e abrir ele,
+  suspeitando de corrida com o antivírus escaneando o arquivo. Testado
+  com exclusões do Windows Defender — não resolveu sozinho (causa real
+  só foi encontrada na 1.13.8).
+
 ## [1.13.5] — Bugfix (tentativa)
 
 ### Corrigido
