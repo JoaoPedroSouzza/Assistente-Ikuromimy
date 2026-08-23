@@ -19,6 +19,7 @@ class Sidebar(QWidget):
             ("🏠 Início", "inicio"),
             ("🎵 Música", "musica"),
             ("🧩 Modos", "modos"),
+            ("🤖 IA", "ia"),
             ("📱 Controle Remoto", "remoto"),
             ("💻 Sistema", "sistema"),
             ("⚙ Configurações", "config"),
