@@ -243,6 +243,18 @@ class AIPage(QWidget):
             return
 
         self.campo_mensagem.clear()
+
+        # comando direto e reconhecido (mesma lógica do escravo.py) —
+        # executa na hora, sem depender da IA formatar a tag certinho
+        try:
+            import escravo
+            if escravo.eh_comando_conhecido(texto):
+                self.historico_chat.append(f"<b>Você:</b> {texto}")
+                self._executar_comando(texto)
+                return
+        except Exception:
+            pass  # se der erro checando, cai pro fluxo normal (conversa com a IA)
+
         self.campo_mensagem.setEnabled(False)
         self.btn_enviar.setEnabled(False)
 

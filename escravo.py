@@ -722,6 +722,48 @@ def _tentar_corrigir_comando(comando: str) -> str | None:
     return f"{corrigida} {resto}".strip()
 
 
+def eh_comando_conhecido(comando: str) -> bool:
+    """Verifica (sem executar nada, sem falar nada) se o texto bate
+    com algum padrão de comando direto conhecido. Usada pra decidir se
+    um texto vai direto pro processar_comando() ou se é conversa de
+    verdade e deve ir pra uma IA conversacional."""
+    comando = comando.lower().strip()
+    if not comando:
+        return False
+
+    if re.match(r"^tocar\s+.+", comando):
+        return True
+    if re.match(r"^(?:pesquisar|pesquisa|buscar)\s+.+", comando):
+        return True
+    if contem_palavra(comando, "atualizar") and "apps" in comando:
+        return True
+    if contem_palavra(comando, "abrir", "abre"):
+        return True
+    if contem_palavra(comando, "fechar", "fecha"):
+        return True
+    if contem_palavra(comando, "play", "pause", "pausar"):
+        return True
+    if contem_palavra(comando, "próxima", "proxima", "pula", "next"):
+        return True
+    if contem_palavra(comando, "anterior", "voltar"):
+        return True
+    if contem_palavra(comando, "aumentar", "sobe") and "volume" in comando:
+        return True
+    if contem_palavra(comando, "diminuir", "abaixa") and "volume" in comando:
+        return True
+    if contem_palavra(comando, "loop", "repetir"):
+        return True
+    if contem_palavra(comando, "para", "sair", "encerrar"):
+        return True
+
+    # também conta como comando conhecido se a autocorreção reconhecer
+    # a primeira palavra como parecida com um gatilho (ex: "abrri spotify")
+    if _tentar_corrigir_comando(comando):
+        return True
+
+    return False
+
+
 def processar_comando(comando: str, permitir_correcao: bool = True) -> bool:
     """Processa um comando. Retorna False se o programa deve encerrar."""
 
