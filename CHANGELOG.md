@@ -9,6 +9,24 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 - **PATCH**: correção de bug, sem mudar o comportamento esperado
 
 ---
+## [1.15.0] — Comandos de voz
+
+### Adicionado
+- **Comando de voz por botão** (`ui/voice_input.py`, `ui/voice_worker.py`):
+  clica no 🎤 na aba IA, fala por até 6 segundos, o texto reconhecido
+  (via reconhecedor gratuito do Google, sem chave de API) vira
+  mensagem automaticamente.
+- **Escuta contínua com palavra de ativação** (`ui/wake_word_listener.py`,
+  `ui/wake_word_worker.py`): liga o "🎙 Ouvir sempre" e o app fica
+  sempre escutando em segundo plano (detecção de fala por energia de
+  áudio, sem motor de wake-word pago). Só age em frases que começam
+  com "assistente" — dizer só "assistente" faz ele responder "Olá, o
+  que deseja?" e esperar a próxima frase como comando.
+- **Execução de comando mais confiável**: antes de mandar qualquer
+  texto pra IA, o app checa se já bate com um comando direto conhecido
+  (`escravo.eh_comando_conhecido()`) e executa na hora — sem depender
+  do modelo de IA formatar uma tag de comando corretamente. A IA só é
+  acionada de verdade pra conversa/comandos ambíguos.
 
 ## [1.14.0] — Assistente IA local (Jarvis)
 
