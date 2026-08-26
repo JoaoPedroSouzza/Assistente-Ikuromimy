@@ -9,6 +9,26 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 - **PATCH**: correção de bug, sem mudar o comportamento esperado
 
 ---
+## [1.16.1] — Bugfix
+
+### Corrigido
+- `assistant_name.salvar_nome()` não devolvia o nome salvo (só salvava
+  e retornava `None`), fazendo aparecer "Nome do assistente atualizado
+  para 'None'" e a escuta contínua não reconhecer o nome novo. Corrigido
+  pra devolver o nome efetivamente salvo.
+
+## [1.16.0] — Sidebar retrátil + nome do assistente configurável
+
+### Adicionado
+- **Sidebar retrátil** (`ui/sidebar.py`): a barra lateral começa
+  recolhida (só ícones, 60px) e expande suavemente ao passar o mouse
+  por cima (220px, animação de ~180ms), recolhendo de novo ao tirar o
+  mouse — via `QPropertyAnimation` no `minimumWidth`/`maximumWidth`.
+- **Nome do assistente configurável** (`ui/assistant_name.py`): campo
+  na aba IA pra trocar a palavra de ativação (ex: "Jarvis" em vez de
+  "assistente" fixo) — usada tanto na apresentação da IA no chat
+  quanto na escuta contínua. Salvo entre sessões.
+
 ## [1.15.0] — Comandos de voz
 
 ### Adicionado
@@ -20,13 +40,12 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
   `ui/wake_word_worker.py`): liga o "🎙 Ouvir sempre" e o app fica
   sempre escutando em segundo plano (detecção de fala por energia de
   áudio, sem motor de wake-word pago). Só age em frases que começam
-  com "assistente" — dizer só "assistente" faz ele responder "Olá, o
-  que deseja?" e esperar a próxima frase como comando.
+  com a palavra de ativação — dizer ela sozinha faz o assistente
+  responder "Olá, o que deseja?" e esperar a próxima frase como comando.
 - **Execução de comando mais confiável**: antes de mandar qualquer
   texto pra IA, o app checa se já bate com um comando direto conhecido
   (`escravo.eh_comando_conhecido()`) e executa na hora — sem depender
-  do modelo de IA formatar uma tag de comando corretamente. A IA só é
-  acionada de verdade pra conversa/comandos ambíguos.
+  do modelo de IA formatar uma tag de comando corretamente.
 
 ## [1.14.0] — Assistente IA local (Jarvis)
 

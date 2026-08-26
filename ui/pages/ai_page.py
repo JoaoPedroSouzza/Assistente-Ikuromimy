@@ -14,16 +14,18 @@ from PySide6.QtWidgets import (
 )
 
 from ui import ollama_manager
+from ui import assistant_name
 from ui.ai_worker import BaixarModeloWorker, ChatWorker, DownloadInstaladorWorker
 from ui.voice_worker import VoiceWorker
 from ui.wake_word_worker import WakeWordWorker
 
 PADRAO_COMANDO = re.compile(r"<comando>(.*?)</comando>", re.IGNORECASE | re.DOTALL)
-PALAVRA_ATIVACAO = "assistente"
 
-PROMPT_SISTEMA = """Você é o Assistente Virtual Ikuromimy, um assistente pessoal estilo \
-Jarvis, rodando localmente no computador do usuário. Fale em português do Brasil, de \
-forma natural, breve e direta.
+
+def _montar_prompt_sistema(nome: str) -> str:
+    return f"""Você é o {nome}, um assistente pessoal estilo Jarvis, rodando \
+localmente no computador do usuário. Fale em português do Brasil, de forma \
+natural, breve e direta.
 
 Você consegue executar ações de verdade no PC do usuário. Quando o pedido dele \
 corresponder a uma ação, inclua na sua resposta uma tag no formato \
@@ -51,7 +53,10 @@ class AIPage(QWidget):
     def __init__(self):
         super().__init__()
 
-        self._historico: list[dict] = [{"role": "system", "content": PROMPT_SISTEMA}]
+        self._nome_assistente = assistant_name.carregar_nome()
+        self._historico: list[dict] = [
+            {"role": "system", "content": _montar_prompt_sistema(self._nome_assistente)}
+        ]
         self._worker = None
         self._wake_worker: WakeWordWorker | None = None
         self._aguardando_comando_apos_wake = False
@@ -74,6 +79,20 @@ class AIPage(QWidget):
         self.btn_acao_setup.setVisible(False)
         self._area.addWidget(self.btn_acao_setup, alignment=Qt.AlignLeft)
 
+        # -- nome do assistente (palavra de ativação) ------------------------
+        linha_nome = QHBoxLayout()
+        linha_nome.addWidget(QLabel("Nome do assistente:"))
+
+        self.campo_nome_assistente = QLineEdit(self._nome_assistente)
+        self.campo_nome_assistente.setPlaceholderText("ex: Jarvis, Alexa, Ikuro...")
+        linha_nome.addWidget(self.campo_nome_assistente)
+
+        self.btn_salvar_nome = QPushButton("Salvar nome")
+        self.btn_salvar_nome.clicked.connect(self._salvar_nome_assistente)
+        linha_nome.addWidget(self.btn_salvar_nome)
+
+        self._area.addLayout(linha_nome)
+
         # -- chat (só aparece quando tudo estiver pronto) --------------------
         self.chat_widget = QWidget()
         chat_layout = QVBoxLayout(self.chat_widget)
@@ -85,7 +104,7 @@ class AIPage(QWidget):
         linha_modelo.addWidget(self.combo_modelo)
         linha_modelo.addStretch()
 
-        self.btn_escuta_continua = QPushButton(f'🎙 Ouvir sempre (diga "{PALAVRA_ATIVACAO}")')
+        self.btn_escuta_continua = QPushButton(f'🎙 Ouvir sempre (diga "{self._nome_assistente}")')
         self.btn_escuta_continua.setCheckable(True)
         self.btn_escuta_continua.toggled.connect(self._alternar_escuta_continua)
         linha_modelo.addWidget(self.btn_escuta_continua)
@@ -168,6 +187,23 @@ class AIPage(QWidget):
             return botao.receivers(botao.clicked) > 0
         except Exception:
             return False
+
+    def _salvar_nome_assistente(self) -> None:
+        novo_nome = assistant_name.salvar_nome(self.campo_nome_assistente.text())
+        self._nome_assistente = novo_nome
+        self.campo_nome_assistente.setText(novo_nome)
+
+        # atualiza o prompt de sistema (a IA passa a se apresentar com
+        # o nome novo) e os textos que mostram o nome na tela
+        self._historico[0] = {
+            "role": "system", "content": _montar_prompt_sistema(self._nome_assistente)
+        }
+        if self.btn_escuta_continua.isChecked():
+            self.btn_escuta_continua.setText("🔴 Ouvindo... (clique pra desligar)")
+        else:
+            self.btn_escuta_continua.setText(f'🎙 Ouvir sempre (diga "{novo_nome}")')
+
+        self.historico_chat.append(f'<i>✓ Nome do assistente atualizado para "{novo_nome}".</i>')
 
     def _baixar_ollama(self) -> None:
         self.btn_acao_setup.setEnabled(False)
@@ -341,6 +377,13 @@ class AIPage(QWidget):
 
     def _alternar_escuta_continua(self, ligado: bool) -> None:
         if ligado:
+            # recarrega o nome caso tenha sido alterado nas Configurações
+            # desde a última vez que essa página foi aberta
+            self._nome_assistente = assistant_name.carregar_nome()
+            self._historico[0] = {
+                "role": "system", "content": _montar_prompt_sistema(self._nome_assistente)
+            }
+
             self.btn_escuta_continua.setText("🔴 Ouvindo... (clique pra desligar)")
             self._aguardando_comando_apos_wake = False
 
@@ -349,10 +392,10 @@ class AIPage(QWidget):
             self._wake_worker.start()
 
             self.historico_chat.append(
-                f'<i>🎙 Escuta contínua ligada. Diga "{PALAVRA_ATIVACAO}" antes do comando.</i>'
+                f'<i>🎙 Escuta contínua ligada. Diga "{self._nome_assistente}" antes do comando.</i>'
             )
         else:
-            self.btn_escuta_continua.setText(f'🎙 Ouvir sempre (diga "{PALAVRA_ATIVACAO}")')
+            self.btn_escuta_continua.setText(f'🎙 Ouvir sempre (diga "{self._nome_assistente}")')
             if self._wake_worker:
                 self._wake_worker.parar()
                 self._wake_worker = None
@@ -360,9 +403,9 @@ class AIPage(QWidget):
 
     def _ao_detectar_frase_continua(self, texto: str) -> None:
         texto_normalizado = texto.strip().lower()
-        prefixo = PALAVRA_ATIVACAO.lower()
+        prefixo = self._nome_assistente.lower()
 
-        # já estávamos esperando o comando depois de um "assistente" sozinho
+        # já estávamos esperando o comando depois do nome dito sozinho
         if self._aguardando_comando_apos_wake:
             self._aguardando_comando_apos_wake = False
             self._processar_comando_de_voz(texto)
@@ -371,10 +414,10 @@ class AIPage(QWidget):
         if not texto_normalizado.startswith(prefixo):
             return  # não era "pra ele" — ignora
 
-        resto = texto[len(PALAVRA_ATIVACAO):].strip(" ,.:-")
+        resto = texto[len(self._nome_assistente):].strip(" ,.:-")
 
         if not resto:
-            # só disse "assistente" — responde e espera a próxima frase
+            # só disse o nome dele — responde e espera a próxima frase
             resposta = "Olá, o que deseja?"
             self.historico_chat.append(f"<b>Assistente:</b> {resposta}")
             try:

@@ -6,7 +6,10 @@ dia a dia: tocar música no Spotify, abrir/fechar programas, pesquisar
 na web, controlar mídia e volume, entre outros.
 
 ## Funcionalidades
-
+- 🤖 **Assistente IA local (Jarvis)**: chat conversacional via [Ollama](https://ollama.com), gratuito e local, sem chave de API.
+- 🎤 **Comandos de voz**: botão de microfone (grava e transcreve) ou escuta contínua com palavra de ativação — diga o nome do assistente antes do comando pra ele reagir.
+- ✏️ **Nome do assistente configurável**: troque a palavra de ativação pra qualquer nome (ex: "Jarvis").
+- 📐 **Sidebar retrátil**: menu lateral recolhe automaticamente e expande com animação ao passar o mouse.
 - 🎙 **Comandos por texto**: digite comandos livres como `abrir spotify`, `tocar bohemian rhapsody`, `pesquisar receita de bolo`, `fechar chrome`.
 - 🔘 **Atalhos pré-definidos**: botões na tela que executam um comando pronto com um clique só. Vem com atalhos padrão e dá pra criar, **editar** e remover os seus próprios — inclusive os padrão.
 - 🧩 **Modos**: grupos de até 5 comandos que executam em sequência com um clique (ex: "Modo Programador" abre VSCode + Spotify + Chrome de uma vez). Editáveis e removíveis pelo clique direito.
@@ -138,3 +141,5 @@ Esse assistente automatiza o teclado/mouse do sistema (via
 `pyautogui`) pra algumas funções, como buscar músicas no app do
 Spotify. Use por sua conta e risco, e evite mexer no PC enquanto um
 comando estiver em execução.
+
+Versão atual: **1.16.1**
