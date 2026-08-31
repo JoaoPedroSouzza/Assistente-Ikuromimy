@@ -21,6 +21,7 @@ from ui.pages.system_page import SystemPage
 from ui.pages.remote_page import RemotePage
 from ui.pages.modes_page import ModesPage
 from ui.pages.ai_page import AIPage
+from ui.pages.friends_page import FriendsPage
 from ui.title_bar import TitleBar
 from ui import theme_manager
 
@@ -89,6 +90,7 @@ class MainWindow(QMainWindow):
         self.pagina_remoto = RemotePage()
         self.pagina_modos = ModesPage()
         self.pagina_ia = AIPage()
+        self.pagina_amigos = FriendsPage()
 
         self.paginas.addWidget(self.pagina_inicio)
         self.paginas.addWidget(self.pagina_musica)
@@ -97,6 +99,7 @@ class MainWindow(QMainWindow):
         self.paginas.addWidget(self.pagina_remoto)
         self.paginas.addWidget(self.pagina_modos)
         self.paginas.addWidget(self.pagina_ia)
+        self.paginas.addWidget(self.pagina_amigos)
 
         # mapa chave -> página, pra achar rápido quando a sidebar avisar
         self._mapa_paginas = {
@@ -107,6 +110,7 @@ class MainWindow(QMainWindow):
             "remoto": self.pagina_remoto,
             "modos": self.pagina_modos,
             "ia": self.pagina_ia,
+            "amigos": self.pagina_amigos,
         }
 
         layout_corpo.addWidget(self.paginas)

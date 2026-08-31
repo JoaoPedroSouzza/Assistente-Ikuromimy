@@ -9,4 +9,4 @@ Atualiza esse número a cada mudança e adiciona uma entrada
 correspondente no CHANGELOG.md, na raiz do projeto.
 """
 
-VERSAO = "1.16.1"
+VERSAO = "1.17.0"

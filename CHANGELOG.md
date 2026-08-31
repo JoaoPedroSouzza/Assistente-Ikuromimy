@@ -9,6 +9,29 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 - **PATCH**: correção de bug, sem mudar o comportamento esperado
 
 ---
+## [1.17.0] — Sidebar retrátil, nome configurável e sistema de Amigos
+
+### Adicionado
+- **Sidebar retrátil** (`ui/sidebar.py`): recolhe automaticamente (só
+  ícones) e expande com animação suave ao passar o mouse.
+- **Nome do assistente configurável** (`ui/assistant_name.py`): troque
+  a palavra de ativação da escuta contínua pra qualquer nome (ex:
+  "Jarvis"), editável direto na aba IA.
+- **Sistema de login e Amigos** (`ui/firebase_client.py`,
+  `ui/friends_worker.py`, `ui/pages/friends_page.py`): cadastro/login
+  por e-mail e senha (via Firebase, gratuito), adicionar amigos por
+  nome de usuário, aceitar/recusar pedidos, e ver o status de cada
+  amigo (🟢 online / ⚪ offline) em tempo quase real.
+- **Status detalhado dos amigos**: mostra o que o amigo está ouvindo
+  no Spotify, ou o último comando que ele executou, quando não tem
+  música tocando.
+- **Mensagens diretas entre amigos**: botão "💬 Conversar" abre um
+  chat simples com cada amigo, atualizado automaticamente.
+
+### Pré-requisitos
+- O sistema de Amigos depende de um projeto **Firebase** gratuito
+
+
 ## [1.16.1] — Bugfix
 
 ### Corrigido
