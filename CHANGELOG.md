@@ -9,6 +9,13 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 - **PATCH**: correção de bug, sem mudar o comportamento esperado
 
 ---
+## [1.17.1] — Bugfix
+
+### Corrigido
+- O botão "💬 Conversar" não aparecia na lista de amigos — a linha de
+  cada amigo estava sendo desenhada só como texto simples em vez de
+  usar o widget com o botão embutido. Corrigido em `friends_page.py`.
+
 ## [1.17.0] — Sidebar retrátil, nome configurável e sistema de Amigos
 
 ### Adicionado

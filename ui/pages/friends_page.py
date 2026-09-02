@@ -1,5 +1,6 @@
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
+    QDialog,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -7,12 +8,93 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QStackedWidget,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
 from ui import firebase_client
-from ui.friends_worker import ListaAmigosWorker, PresencaWorker
+from ui.friends_worker import ListaAmigosWorker, MensagensWorker, PresencaWorker
+
+
+class ChatAmigoDialog(QDialog):
+    """Janela de conversa com um amigo. Atualiza a cada poucos
+    segundos (polling, mesmo padrão do resto do app — sem depender de
+    websocket/realtime subscription pra evitar dependência nova)."""
+
+    INTERVALO_ATUALIZACAO_MS = 4_000
+
+    def __init__(self, uid_amigo: str, nome_amigo: str, parent=None):
+        super().__init__(parent)
+        self.uid_amigo = uid_amigo
+        self.setWindowTitle(f"Conversa com {nome_amigo}")
+        self.setMinimumSize(420, 500)
+
+        layout = QVBoxLayout(self)
+
+        self.historico = QTextEdit()
+        self.historico.setReadOnly(True)
+        layout.addWidget(self.historico)
+
+        linha_envio = QHBoxLayout()
+        self.campo_mensagem = QLineEdit()
+        self.campo_mensagem.setPlaceholderText("Digite uma mensagem...")
+        self.campo_mensagem.returnPressed.connect(self._enviar)
+        linha_envio.addWidget(self.campo_mensagem)
+
+        btn_enviar = QPushButton("Enviar")
+        btn_enviar.clicked.connect(self._enviar)
+        linha_envio.addWidget(btn_enviar)
+
+        layout.addLayout(linha_envio)
+
+        self._worker: MensagensWorker | None = None
+        self._ultima_contagem = -1
+
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self._atualizar_mensagens)
+        self._timer.setInterval(self.INTERVALO_ATUALIZACAO_MS)
+        self._timer.start()
+
+        self._atualizar_mensagens()
+
+    def _enviar(self) -> None:
+        texto = self.campo_mensagem.text().strip()
+        if not texto:
+            return
+
+        try:
+            firebase_client.enviar_mensagem_amigo(self.uid_amigo, texto)
+            self.campo_mensagem.clear()
+            self._ultima_contagem = -1  # força recarregar já
+            self._atualizar_mensagens()
+        except Exception as erro:
+            self.historico.append(f"<i>❌ Erro ao enviar: {erro}</i>")
+
+    def _atualizar_mensagens(self) -> None:
+        self._worker = MensagensWorker(self.uid_amigo)
+        self._worker.concluido.connect(self._ao_receber_mensagens)
+        self._worker.start()
+
+    def _ao_receber_mensagens(self, mensagens: list) -> None:
+        if len(mensagens) == self._ultima_contagem:
+            return  # nada novo, evita "piscar" recarregando à toa
+        self._ultima_contagem = len(mensagens)
+
+        sessao = firebase_client.sessao_valida()
+        meu_uid = sessao["localId"] if sessao else None
+
+        self.historico.clear()
+        for msg in mensagens:
+            quem = "Você" if msg.get("remetente") == meu_uid else "Amigo"
+            self.historico.append(f"<b>{quem}:</b> {msg.get('texto', '')}")
+
+        barra = self.historico.verticalScrollBar()
+        barra.setValue(barra.maximum())
+
+    def closeEvent(self, event) -> None:
+        self._timer.stop()
+        super().closeEvent(event)
 
 
 class FriendsPage(QWidget):
@@ -239,7 +321,25 @@ class FriendsPage(QWidget):
                 texto = f'{bolinha} {amigo["nome_usuario"]}'
                 if amigo["online"] and amigo["status_texto"]:
                     texto += f'  —  {amigo["status_texto"]}'
-                self.lista_amigos.addItem(QListWidgetItem(texto))
+
+                item = QListWidgetItem()
+                self.lista_amigos.addItem(item)
+
+                widget_linha = QWidget()
+                layout_linha = QHBoxLayout(widget_linha)
+                layout_linha.setContentsMargins(4, 2, 4, 2)
+                layout_linha.addWidget(QLabel(texto))
+                layout_linha.addStretch()
+
+                btn_conversar = QPushButton("💬 Conversar")
+                btn_conversar.clicked.connect(
+                    lambda checked=False, uid=amigo["uid"], nome=amigo["nome_usuario"]:
+                        self._abrir_chat(uid, nome)
+                )
+                layout_linha.addWidget(btn_conversar)
+
+                item.setSizeHint(widget_linha.sizeHint())
+                self.lista_amigos.setItemWidget(item, widget_linha)
 
             elif amigo["status_amizade"] == "pendente_enviado":
                 self.lista_amigos.addItem(
@@ -262,6 +362,10 @@ class FriendsPage(QWidget):
             self._atualizar_lista_amigos()
         except Exception as erro:
             self.status_amigos.setText(f"❌ {erro}")
+
+    def _abrir_chat(self, uid_amigo: str, nome_amigo: str) -> None:
+        dialogo = ChatAmigoDialog(uid_amigo, nome_amigo, parent=self)
+        dialogo.exec()
 
     def _sair(self) -> None:
         firebase_client.sair()
