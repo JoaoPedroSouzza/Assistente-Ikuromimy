@@ -142,4 +142,4 @@ Esse assistente automatiza o teclado/mouse do sistema (via
 Spotify. Use por sua conta e risco, e evite mexer no PC enquanto um
 comando estiver em execução.
 
-Versão atual: **1.16.1**
+Versão atual: **1.17.1**
