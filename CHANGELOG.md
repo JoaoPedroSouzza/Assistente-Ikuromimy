@@ -21,7 +21,7 @@ Testes isolados: partes do sistema que dependem de serviços externos ou recurso
 
 Validação de funcionalidades: adicionadas verificações para garantir que funções importantes continuem apresentando o comportamento esperado depois de alterações ou refatorações.
 
-Melhorado
+## Melhorado
 
 Organização interna do projeto: revisão da estrutura e separação de responsabilidades entre os módulos, facilitando manutenção, depuração e desenvolvimento de novas funcionalidades.
 
@@ -33,7 +33,7 @@ Fluxo de desenvolvimento: o projeto passa a ter uma base mais preparada para tes
 
 Manutenibilidade: módulos importantes do sistema foram preparados para serem validados individualmente, facilitando futuras refatorações.
 
-Corrigido
+## Corrigido
 
 Ajustados problemas encontrados durante a análise e validação dos módulos do projeto.
 
@@ -41,7 +41,7 @@ Corrigidas inconsistências identificadas durante os testes e a reorganização 
 
 Integração do código local com o branch principal do repositório, resolvendo conflitos entre os históricos das duas versões do projeto.
 
-Manutenção
+## Manutenção
 
 Revisão de interface.py e escravo.py, responsáveis pela inicialização da interface e processamento dos comandos.
 
