@@ -9,6 +9,58 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 - **PATCH**: correção de bug, sem mudar o comportamento esperado
 
 ---
+## [1.18.0] — Testes automatizados, qualidade e organização do projeto
+
+## Adicionado
+
+Estrutura de testes automatizados: criada uma base dedicada para testar os principais componentes do Assistente Ikuromimy e detectar regressões antes da publicação de novas versões.
+
+Testes dos módulos da interface: adicionadas verificações para componentes responsáveis pela janela principal, IA, histórico de comandos, sistema de Amigos, Modos, entrada por voz, palavra de ativação e demais partes da interface.
+
+Testes isolados: partes do sistema que dependem de serviços externos ou recursos do computador podem ser testadas de forma controlada, reduzindo a dependência do ambiente real durante a execução dos testes.
+
+Validação de funcionalidades: adicionadas verificações para garantir que funções importantes continuem apresentando o comportamento esperado depois de alterações ou refatorações.
+
+Melhorado
+
+Organização interna do projeto: revisão da estrutura e separação de responsabilidades entre os módulos, facilitando manutenção, depuração e desenvolvimento de novas funcionalidades.
+
+Qualidade do código: ajustes e refatorações em diferentes partes do projeto para melhorar legibilidade, reutilização e manutenção.
+
+Confiabilidade: a nova estrutura de testes permite identificar mais rapidamente alterações que possam quebrar funcionalidades existentes.
+
+Fluxo de desenvolvimento: o projeto passa a ter uma base mais preparada para testar alterações antes da geração do executável e publicação de novas versões.
+
+Manutenibilidade: módulos importantes do sistema foram preparados para serem validados individualmente, facilitando futuras refatorações.
+
+Corrigido
+
+Ajustados problemas encontrados durante a análise e validação dos módulos do projeto.
+
+Corrigidas inconsistências identificadas durante os testes e a reorganização do código.
+
+Integração do código local com o branch principal do repositório, resolvendo conflitos entre os históricos das duas versões do projeto.
+
+Manutenção
+
+Revisão de interface.py e escravo.py, responsáveis pela inicialização da interface e processamento dos comandos.
+
+Revisão dos componentes de IA, incluindo ui/ai_worker.py e ui/ollama_manager.py.
+
+Revisão dos componentes de Modos, incluindo ui/modes_manager.py, ui/modes_dialog.py e ui/modes_executor.py.
+
+Revisão dos componentes relacionados ao sistema de Amigos e comunicação.
+
+Revisão dos componentes de voz e escuta contínua, incluindo ui/voice_input.py, ui/wake_word_listener.py e ui/wake_word_worker.py.
+
+Revisão das páginas da interface em ui/pages/ e dos componentes responsáveis pela janela principal.
+
+Ajustes no ikuro.spec e na estrutura utilizada para geração do executável.
+
+## Desenvolvimento
+
+A versão 1.18.0 estabelece uma base de testes e qualidade para o Assistente Ikuromimy. O objetivo é tornar o desenvolvimento das próximas versões mais seguro, permitindo realizar refatorações, otimizações e adicionar novas funcionalidades com menor risco de quebrar recursos já existentes.
+
 ## [1.17.1] — Bugfix
 
 ### Corrigido
