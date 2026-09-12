@@ -1,0 +1,41 @@
+{
+  "etapas": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "python_validado": "3.14.4",
+  "testes": 249,
+  "falhas": 0,
+  "erros": 0,
+  "ignorados": 0,
+  "duracao_testes": 11.122,
+  "avisos": 1,
+  "cobertura_linhas": 71.38,
+  "cobertura_ramificacoes": 57.38,
+  "cobertura_combinada": 69.02,
+  "benchmark_antes_segundos": 0.4443930999841541,
+  "benchmark_depois_segundos": 0.2911449000239372,
+  "reducao_benchmark_percentual": 34.48,
+  "analise_estatica": {
+    "arquivos": 48,
+    "achados": [],
+    "escopo": "Sintaxe Python 3.10, nomes globais, except sem tipo, eval/exec, shell=True e timeout HTTP. Não substitui auditoria de segurança nem verificação de tipos."
+  },
+  "ruff_executado_localmente": false,
+  "build": {
+    "exit_code": 0,
+    "duracao_segundos": 6.391,
+    "sha256": "2a9e0f929a7f401a39f8941a6040a7c179deb7b637c1806b9dd13378813fe6a2",
+    "bytes": 97357821,
+    "escopo": "Imports do executável e recurso QSS; nenhuma janela ou comando do assistente iniciado."
+  },
+  "github_actions_executado": false,
+  "ci_cd": "Configurado: análise, testes em matriz, build condicionado aos checks e artefato com SHA256. Sem release publicada."
+}

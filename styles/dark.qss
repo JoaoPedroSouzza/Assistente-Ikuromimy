@@ -1,0 +1,40 @@
+QMainWindow {
+    background-color: #202020;
+}
+
+
+QWidget {
+    color: white;
+    font-size: 15px;
+}
+
+
+QPushButton {
+    background-color: #303030;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+
+QPushButton:hover {
+    background-color: #505050;
+}
+
+
+QLineEdit {
+    background-color: #303030;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+
+QTextEdit {
+    background-color: #181818;
+    border-radius: 10px;
+}
+
+
+#titulo {
+    font-size: 28px;
+    font-weight: bold;
+}

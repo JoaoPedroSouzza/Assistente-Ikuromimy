@@ -1,0 +1,68 @@
+# Ambiente virtual Python
+venv/
+env/
+.venv/
+
+# Build do PyInstaller
+build/
+dist/
+*.spec.bak
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Configurações locais do PyCharm/VSCode
+.vscode/
+.idea/
+
+# Arquivos temporários gerados em runtime (fala em áudio, etc.)
+*.mp3
+temp_*.mp3
+
+# Logs
+*.log
+
+# Windows
+Thumbs.db
+desktop.ini
+
+.venv-testes/
+reports/
+reports-ampliados/
+.coverage
+.coverage.*
+.pytest_cache/
+__pycache__/
+
+reports-pipeline/
+
+dist-pipeline/
+
+# Medições e relatórios gerados localmente
+*.prof
+*.pstats
+htmlcov/
+coverage.xml
+junit.xml
+.ruff_cache/
+.mypy_cache/
+
+# Pacotes e executáveis distribuídos separadamente
+*.zip
+*.exe
+
+# Segredos e configuração local
+.env
+.env.*
+!.env.example
+!.env.sample
+*service-account*.json
+*service_account*.json
+*firebase-adminsdk*.json
+*.pem
+*.key
+
+# Relatório antigo de testes, substituído por PIPELINE.md
+RESULTADOS-TESTES.md

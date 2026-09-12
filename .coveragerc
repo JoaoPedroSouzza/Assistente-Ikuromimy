@@ -1,0 +1,14 @@
+[run]
+branch = True
+source =
+    core
+    escravo
+    ui
+
+[report]
+fail_under = 65
+show_missing = True
+skip_empty = True
+
+[html]
+directory = reports-pipeline/coverage

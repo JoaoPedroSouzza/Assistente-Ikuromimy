@@ -1,0 +1,82 @@
+name: Qualidade e entrega do assistente
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      empacotar:
+        description: Gerar executável Windows após os checks
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  analise:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-quality.txt
+      - run: python scripts/analisar.py
+      - run: python -m ruff check core ui escravo.py interface.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analise-estatica
+          path: reports-pipeline/analise-estatica.json
+  testes:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.12', '3.14']
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-testes.txt
+      - run: python -m pip install -r requirements-testes.txt
+      - run: python -m pytest --cov --cov-report=term-missing --cov-report=xml:reports-pipeline/coverage.xml --cov-report=html --junitxml=reports-pipeline/junit.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-python-${{ matrix.python-version }}
+          path: reports-pipeline/
+  empacotar:
+    needs: [analise, testes]
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.empacotar)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pip check
+      - run: python -m PyInstaller --noconfirm ikuro.spec
+      - name: Smoke test do executável
+        shell: python
+        run: |
+          import subprocess
+          subprocess.run([r'dist/Assistente Virtual Ikuromimy.exe', '--self-test'], check=True, timeout=90, creationflags=subprocess.CREATE_NO_WINDOW)
+      - name: Calcular checksum
+        shell: pwsh
+        run: |
+          (Get-FileHash -LiteralPath 'dist/Assistente Virtual Ikuromimy.exe' -Algorithm SHA256).Hash | Set-Content -LiteralPath 'dist/SHA256.txt'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Assistente-Ikuromimy-Windows
+          path: dist/
