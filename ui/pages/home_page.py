@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ui.components.motion import ReactiveButton
+
 
 from ui import command_history, shortcuts_manager
 from ui.command_worker import CommandWorker
@@ -22,9 +24,12 @@ class HomePage(QWidget):
     """Página inicial: atalhos pré-definidos (um clique executa),
     campo de comando livre com autocompletar/sugestão + log."""
 
-    def __init__(self):
+    def __init__(self, engine=None, theme=None, bus=None):
         super().__init__()
         self._worker = None
+        if engine is not None:
+            self._build_reactive(engine, theme, bus)
+            return
 
         area = QVBoxLayout(self)
 
@@ -52,7 +57,7 @@ class HomePage(QWidget):
         self.comando.setCompleter(self._completer)
         self._atualizar_sugestoes()
 
-        botao = QPushButton("▶ Executar")
+        botao = ReactiveButton("▶ Executar")
         self.btn_executar = botao
         botao.clicked.connect(self.executar_comando)
 
@@ -63,6 +68,61 @@ class HomePage(QWidget):
         area.addWidget(self.comando)
         area.addWidget(botao)
         area.addWidget(self.log)
+
+    def _build_reactive(self, engine, theme, bus):
+        from PySide6.QtWidgets import QHBoxLayout, QFrame, QStackedWidget
+        from ui.components.ai_core import AICore
+        from ui.state.assistant_state import LABELS
+        self.bus = bus
+        area = QVBoxLayout(self)
+        area.setContentsMargins(28, 16, 28, 12)
+        self.views = QStackedWidget()
+        area.addWidget(self.views, 1)
+        hero = QWidget()
+        hero_area = QVBoxLayout(hero)
+        hero_area.setContentsMargins(0, 8, 0, 0)
+        overline = QLabel("SEU ESPAÇO. SUA INTELIGÊNCIA.")
+        overline.setObjectName("eyebrow"); overline.setAlignment(Qt.AlignCenter)
+        hero_area.addWidget(overline)
+        title = QLabel("Como posso ajudar?")
+        title.setObjectName("heroTitle"); title.setAlignment(Qt.AlignCenter)
+        hero_area.addWidget(title)
+        note = QLabel("Uma ideia, uma conversa ou o próximo passo.")
+        note.setObjectName("muted"); note.setAlignment(Qt.AlignCenter); hero_area.addWidget(note)
+        self.core = AICore(engine, theme, bus)
+        hero_area.addWidget(self.core, 1)
+        self.state_label = QLabel("●  Aguardando você")
+        self.state_label.setAlignment(Qt.AlignCenter)
+        hero_area.addWidget(self.state_label)
+        bus.assistant_state_changed.connect(lambda state, detail: self.state_label.setText("●  " + (detail or LABELS[state])))
+        hero_area.addSpacing(12)
+        self.quick = QFrame(); self.quick.setObjectName("glass")
+        quick_area = QHBoxLayout(self.quick)
+        for label, key in (("↗  Atalhos", "atalhos"), ("♫  Música", "musica"), ("◇  Modos", "modos")):
+            button = ReactiveButton(label)
+            button.clicked.connect(lambda checked=False, k=key: bus.page_changed.emit(k))
+            quick_area.addWidget(button)
+        hero_area.addWidget(self.quick)
+        self.views.addWidget(hero)
+        shortcuts = QWidget(); shortcut_area = QVBoxLayout(shortcuts)
+        title = QLabel("Seus atalhos"); title.setObjectName("titulo"); shortcut_area.addWidget(title)
+        subtitle = QLabel("Clique para executar. Clique direito para editar ou remover.")
+        subtitle.setWordWrap(True); subtitle.setObjectName("muted"); shortcut_area.addWidget(subtitle)
+        self.grid_atalhos = QGridLayout(); shortcut_area.addLayout(self.grid_atalhos)
+        self._montar_atalhos()
+        self.comando = QLineEdit(); self.comando.setPlaceholderText("Ex: abrir spotify...")
+        self.comando.returnPressed.connect(self.executar_comando)
+        self._completer = QCompleter(); self._completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self._completer.setFilterMode(Qt.MatchContains); self.comando.setCompleter(self._completer)
+        self._atualizar_sugestoes()
+        self.btn_executar = ReactiveButton("▶ Executar"); self.btn_executar.clicked.connect(self.executar_comando)
+        shortcut_area.addWidget(self.comando); shortcut_area.addWidget(self.btn_executar)
+        self.log = QTextEdit(); self.log.setReadOnly(True); self.log.append("Sistema iniciado...")
+        shortcut_area.addWidget(self.log, 1)
+        self.views.addWidget(shortcuts)
+
+    def set_view(self, shortcuts=False):
+        self.views.setCurrentIndex(1 if shortcuts else 0)
 
     # ----------------------------------------------------------------
     # atalhos pré-definidos
@@ -78,7 +138,7 @@ class HomePage(QWidget):
         atalhos = shortcuts_manager.listar_atalhos()
 
         for i, atalho in enumerate(atalhos):
-            botao = QPushButton(atalho["label"])
+            botao = ReactiveButton(atalho["label"])
             botao.clicked.connect(
                 lambda checked=False, c=atalho["comando"]: self._executar_texto(c)
             )
@@ -94,7 +154,7 @@ class HomePage(QWidget):
         # botão de adicionar, sempre por último
         total = len(atalhos)
         linha, coluna = divmod(total, COLUNAS_ATALHOS)
-        botao_add = QPushButton("+ Novo atalho")
+        botao_add = ReactiveButton("+ Novo atalho")
         botao_add.clicked.connect(self._adicionar_atalho)
         self.grid_atalhos.addWidget(botao_add, linha, coluna)
 

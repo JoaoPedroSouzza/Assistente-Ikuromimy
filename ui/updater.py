@@ -23,7 +23,7 @@ from pathlib import Path
 
 from ui.version import VERSAO
 
-REPOSITORIO_GITHUB = "sankaito/Assistente-Ikuromimy"
+REPOSITORIO_GITHUB = "JoaoPedroSouzza/Assistente-Ikuromimy"
 URL_API_LATEST = f"https://api.github.com/repos/{REPOSITORIO_GITHUB}/releases/latest"
 
 

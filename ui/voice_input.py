@@ -20,18 +20,38 @@ TAXA_AMOSTRAGEM = 16000
 CANAIS = 1
 
 
-def gravar_e_transcrever(duracao_segundos: float = 6.0, idioma: str = "pt-BR") -> str:
+def gravar_e_transcrever(duracao_segundos: float = 6.0, idioma: str = "pt-BR", on_level=None) -> str:
     """Grava do microfone padrão por 'duracao_segundos' segundos e
     devolve o texto reconhecido. Levanta RuntimeError com uma mensagem
     amigável se não conseguir gravar ou entender o que foi falado."""
     try:
-        audio_gravado = sd.rec(
-            int(duracao_segundos * TAXA_AMOSTRAGEM),
-            samplerate=TAXA_AMOSTRAGEM,
-            channels=CANAIS,
-            dtype="int16",
-        )
-        sd.wait()
+        if on_level is None:
+            audio_gravado = sd.rec(
+                int(duracao_segundos * TAXA_AMOSTRAGEM), samplerate=TAXA_AMOSTRAGEM,
+                channels=CANAIS, dtype="int16",
+            )
+            sd.wait()
+        else:
+            import numpy as np
+            from threading import Event
+            blocks = []
+            complete = Event()
+            remaining = int(duracao_segundos * TAXA_AMOSTRAGEM)
+            def receive(indata, frames, timing, status):
+                nonlocal remaining
+                if remaining <= 0: return
+                block = indata[:remaining].copy()
+                blocks.append(block)
+                remaining -= len(block)
+                rms = float(np.sqrt(np.mean(block.astype(np.float64)**2)))
+                on_level(min(1., rms/6000.))
+                if remaining <= 0: complete.set()
+            with sd.InputStream(samplerate=TAXA_AMOSTRAGEM, channels=CANAIS,
+                                dtype="int16", blocksize=1024, callback=receive):
+                if not complete.wait(duracao_segundos+3):
+                    raise RuntimeError("O microfone não entregou áudio no tempo esperado.")
+            on_level(0.)
+            audio_gravado = np.concatenate(blocks)
     except Exception as erro:
         raise RuntimeError(f"Não consegui acessar o microfone: {erro}")
 

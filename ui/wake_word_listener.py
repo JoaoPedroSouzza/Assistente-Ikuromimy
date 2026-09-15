@@ -16,6 +16,7 @@ que liga/desliga, não fica ativa o tempo todo sem escolha do usuário.
 from __future__ import annotations
 
 import queue
+from core.visual_events import publish
 from threading import Event
 
 import numpy as np
@@ -81,6 +82,7 @@ class EscutaContinua:
     def solicitar_parada(self) -> None:
         self._parada.set()
         self._rodando = False
+        publish("audio", 0.)
 
     def _callback_audio(self, indata, frames, tempo, status) -> None:
         self._fila.put(indata.copy())
@@ -103,6 +105,7 @@ class EscutaContinua:
                 continue
 
             energia = _rms(bloco)
+            publish("audio", min(1., energia/6000.))
 
             if energia > LIMIAR_ENERGIA:
                 em_fala = True

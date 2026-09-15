@@ -66,3 +66,6 @@ junit.xml
 
 # Relatório antigo de testes, substituído por PIPELINE.md
 RESULTADOS-TESTES.md
+
+# Relatórios do redesign
+reports-redesign/

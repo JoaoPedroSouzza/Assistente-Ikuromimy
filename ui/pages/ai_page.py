@@ -17,9 +17,10 @@ from PySide6.QtWidgets import (
 from ui import ollama_manager
 from ui import assistant_name
 from ui.ai_worker import BaixarModeloWorker, ChatWorker, DownloadInstaladorWorker
-from ui.voice_worker import VoiceWorker
+from ui.voice_worker import VoiceWorker, SpeechWorker
 from ui.wake_word_worker import WakeWordWorker
 from ui.command_worker import CommandWorker
+from core.visual_events import publish
 
 PADRAO_COMANDO = re.compile(r"<comando>(.*?)</comando>", re.IGNORECASE | re.DOTALL)
 
@@ -119,6 +120,7 @@ class AIPage(QWidget):
 
         linha_envio = QHBoxLayout()
         self.campo_mensagem = QLineEdit()
+        self.campo_mensagem.setMaxLength(150000)
         self.campo_mensagem.setPlaceholderText("Fale com o assistente...")
         self.campo_mensagem.returnPressed.connect(self._enviar_mensagem)
         linha_envio.addWidget(self.campo_mensagem)
@@ -276,6 +278,9 @@ class AIPage(QWidget):
     # ------------------------------------------------------------------
 
     def _enviar_mensagem(self) -> None:
+        current = self._worker
+        if current is not None and current.isRunning():
+            return
         texto = self.campo_mensagem.text().strip()
         if not texto:
             return
@@ -303,6 +308,7 @@ class AIPage(QWidget):
 
         modelo = self.combo_modelo.currentText() or ollama_manager.MODELO_PADRAO
 
+        publish("state", "thinking")
         self._worker = ChatWorker(modelo, list(self._historico))
         self._worker.pedaco_recebido.connect(self._ao_receber_pedaco)
         self._worker.concluido.connect(self._ao_concluir_resposta)
@@ -316,6 +322,7 @@ class AIPage(QWidget):
         self.historico_chat.setTextCursor(cursor)
 
     def _ao_concluir_resposta(self, resposta_completa: str) -> None:
+        publish("state", "success")
         self._historico.append({"role": "assistant", "content": resposta_completa})
         self.historico_chat.append("")
 
@@ -335,6 +342,7 @@ class AIPage(QWidget):
                 self._executar_comando(texto_comando)
 
     def _ao_erro_chat(self, mensagem: str) -> None:
+        publish("state", "error")
         self.historico_chat.append(f"<i>❌ Erro: {mensagem}</i>")
         self.campo_mensagem.setEnabled(True)
         self.btn_enviar.setEnabled(True)
@@ -356,6 +364,9 @@ class AIPage(QWidget):
     # ------------------------------------------------------------------
 
     def _iniciar_gravacao(self) -> None:
+        current = getattr(self, "_voice_worker", None)
+        if current is not None and current.isRunning(): return
+        publish("state", "listening")
         self.btn_microfone.setEnabled(False)
         self.btn_microfone.setText("🔴")
         self.campo_mensagem.setEnabled(False)
@@ -363,16 +374,19 @@ class AIPage(QWidget):
         self.campo_mensagem.setPlaceholderText("Gravando... fala agora (6 segundos)")
 
         self._voice_worker = VoiceWorker(duracao_segundos=6.0)
+        self._voice_worker.capture_levels = hasattr(self, "visual_bus")
         self._voice_worker.concluido.connect(self._ao_transcrever)
         self._voice_worker.erro.connect(self._ao_erro_gravacao)
         self._voice_worker.start()
 
     def _ao_transcrever(self, texto: str) -> None:
+        publish("state", "idle")
         self._restaurar_botao_microfone()
         self.campo_mensagem.setText(texto)
         self._enviar_mensagem()
 
     def _ao_erro_gravacao(self, mensagem: str) -> None:
+        publish("state", "error")
         self._restaurar_botao_microfone()
         self.historico_chat.append(f"<i>🎤 {mensagem}</i>")
 
@@ -427,6 +441,7 @@ class AIPage(QWidget):
         if not re.match(rf"^{re.escape(prefixo)}(?=$|[\s,.:-])", texto_normalizado):
             return  # não era "pra ele" — ignora
 
+        publish("wake")
         resto = texto[len(self._nome_assistente):].strip(" ,.:-")
 
         if not resto:
@@ -435,7 +450,10 @@ class AIPage(QWidget):
             self.historico_chat.append(f"<b>Assistente:</b> {resposta}")
             try:
                 import escravo
-                escravo.falar(resposta)
+                current = getattr(self, "_speech_worker", None)
+                if escravo.VOZ_ATIVA and (current is None or not current.isRunning()):
+                    self._speech_worker = SpeechWorker(resposta, self)
+                    self._speech_worker.start()
             except Exception:
                 pass
             self._aguardando_comando_apos_wake = True

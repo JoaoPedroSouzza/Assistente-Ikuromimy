@@ -1,3 +1,5 @@
+> Interface reativa: veja [REDESIGN.md](REDESIGN.md) para o novo visual, execução e limites.
+
 # Assistente Virtual Ikuromimy
 
 Assistente virtual para Windows com comandos por voz/texto, interface
@@ -37,7 +39,7 @@ na web, controlar mídia e volume, entre outros.
 ### Rodando a partir do código
 
 ```powershell
-git clone https://github.com/sankaito/Assistente-Ikuromimy.git
+git clone https://github.com/JoaoPedroSouzza/Assistente-Ikuromimy.git
 cd Assistente-Ikuromimy
 
 python -m venv venv
@@ -142,7 +144,7 @@ Esse assistente automatiza o teclado/mouse do sistema (via
 Spotify. Use por sua conta e risco, e evite mexer no PC enquanto um
 comando estiver em execução.
 
-Versão atual: **1.17.1**
+Versão atual: **1.19.0**
 
 ## Testes automáticos
 

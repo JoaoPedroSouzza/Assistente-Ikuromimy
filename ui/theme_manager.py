@@ -182,5 +182,10 @@ def aplicar_tema(cor: QColor) -> None:
     escolha pra próxima vez que o programa abrir."""
     app = QApplication.instance()
     if app is not None:
-        app.setStyleSheet(gerar_qss(cor))
+        reactive = [window for window in app.topLevelWidgets() if hasattr(window, "theme") and hasattr(window, "bus")]
+        if reactive:
+            for window in reactive:
+                window.bus.theme_changed.emit(cor)
+        else:
+            app.setStyleSheet(gerar_qss(cor))
     salvar_cor(cor)

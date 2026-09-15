@@ -1,0 +1,15 @@
+{
+  "etapa": "Redesign reativo da interface",
+  "testes_aprovados": 260,
+  "falhas": 0,
+  "exit_code": 0,
+  "cobertura_combinada_percentual": 73.51,
+  "analise_estatica": {
+    "arquivos": 66,
+    "achados": 0
+  },
+  "self_test_fonte": 0,
+  "executavel_reconstruido": false,
+  "publicado_no_github": false,
+  "preview": "Renderização nativa Qt Windows sem mostrar janela; Ollama e ações externas isolados nos testes."
+}

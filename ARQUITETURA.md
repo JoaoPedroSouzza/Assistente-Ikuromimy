@@ -32,3 +32,8 @@ configurar integração contínua e empacotamento de artefato Windows.
 
 O CI/CD prepara artefatos e checks. Publicação de release e instalação no computador
 não fazem parte da execução local. Resultados e limitações ficam no relatório final.
+
+
+## Camada visual reativa
+
+A UI ganhou estados/eventos, motor de animação, tema reativo, efeitos e componentes separados. Veja [REDESIGN.md](REDESIGN.md) para a composição e os contratos. O núcleo emite notificações opcionais por `core/visual_events.py` sem importar Qt.

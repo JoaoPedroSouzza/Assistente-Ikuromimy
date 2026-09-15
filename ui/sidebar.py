@@ -1,8 +1,10 @@
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Signal
 from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget
+from ui.components.motion import ReactiveButton
 
-LARGURA_RECOLHIDA = 60
-LARGURA_EXPANDIDA = 220
+
+LARGURA_RECOLHIDA = 64
+LARGURA_EXPANDIDA = 206
 DURACAO_ANIMACAO_MS = 180
 
 
@@ -14,6 +16,7 @@ class Sidebar(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.setObjectName("sidebar")
         self._expandida = False
 
         # não usa setFixedWidth aqui de propósito — precisamos animar
@@ -26,20 +29,25 @@ class Sidebar(QWidget):
         # (ícone, texto, chave da página) — separados pra poder mostrar
         # só o ícone quando recolhida, e ícone+texto quando expandida
         self._info_botoes = [
-            ("🏠", "Início", "inicio"),
-            ("🎵", "Música", "musica"),
-            ("🧩", "Modos", "modos"),
-            ("🤖", "IA", "ia"),
-            ("👥", "Amigos", "amigos"),
-            ("📱", "Controle Remoto", "remoto"),
-            ("💻", "Sistema", "sistema"),
+            ("⌂", "Início", "inicio"),
+            ("✦", "Conversas", "ia"),
+            ("♫", "Música", "musica"),
+            ("↗", "Atalhos", "atalhos"),
+            ("◇", "Modos", "modos"),
+            ("♧", "Amigos", "amigos"),
+            ("▣", "Controle remoto", "remoto"),
+            ("▤", "Sistema", "sistema"),
             ("⚙", "Configurações", "config"),
         ]
 
         self._botoes: list[QPushButton] = []
         for icone, texto, chave in self._info_botoes:
-            botao = QPushButton(icone)
+            botao = ReactiveButton(icone)
             botao.setObjectName("botao_sidebar")
+            botao.setCheckable(True)
+            botao.setAutoExclusive(True)
+            botao.setChecked(chave == "inicio")
+            botao.setAccessibleName(texto)
             botao.setToolTip(texto)
             botao.clicked.connect(
                 lambda checked=False, c=chave: self.pagina_selecionada.emit(c)
@@ -86,6 +94,11 @@ class Sidebar(QWidget):
             botao.setText(icone)
 
     def _animar_para(self, largura: int) -> None:
+        engine = getattr(self.window(), "engine", None)
+        if engine and engine.quality == "Desativado":
+            self._anim_min.stop(); self._anim_max.stop()
+            self.setMinimumWidth(largura); self.setMaximumWidth(largura)
+            return
         largura_atual = self.width()
 
         self._anim_min.stop()
@@ -98,3 +111,7 @@ class Sidebar(QWidget):
 
         self._anim_min.start()
         self._anim_max.start()
+
+    def select(self, key):
+        for (_, _, page), button in zip(self._info_botoes, self._botoes):
+            button.setChecked(page == key)

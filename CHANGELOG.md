@@ -9,9 +9,47 @@ Segue [Versionamento Semântico](https://semver.org/lang/pt-BR/):
 - **PATCH**: correção de bug, sem mudar o comportamento esperado
 
 ---
+## [1.19.0] — 2026-09-15 — Redesign reativo e núcleo visual da IA
+
+### Adicionado
+
+- Fundo topográfico procedural animado, inspirado em curvas de nível, com parallax do mouse, propagação de cor e reação aos estados do assistente.
+- Núcleo visual com contornos, anéis e partículas, representando espera, escuta, pensamento, fala, execução, sucesso, erro e indisponibilidade do modelo.
+- Cor de destaque por seção, transições suaves e personalização persistida por página.
+- Barra de comandos disponível em todas as páginas, com sugestões contextuais, voz e anexos UTF-8 de até 128 KiB mantidos como rascunho antes do envio.
+- Central de comandos em `Ctrl + Espaço`, disponível enquanto a janela do aplicativo está em foco.
+- Telemetria de CPU/RAM com interpolação; GPU/temperatura NVIDIA quando `nvidia-smi` está disponível e demais temperaturas quando expostas pelo psutil.
+- Modo ambiente após 75 segundos ocioso no início, com retorno por interação ou palavra de ativação.
+- Quatro níveis de efeitos: Alto, Médio, Baixo e Desativado.
+- Barramento de eventos visuais desacoplado da lógica de comandos e componentes separados para tema, animações, efeitos e controles.
+- 11 testes adicionais do redesign, totalizando 260 testes na validação local registrada.
+
+### Melhorado
+
+- Página inicial redesenhada, painéis translúcidos, sidebar retrátil com seleção visível e resposta visual dos botões ao pressionar.
+- Editor de atalhos existente acessível pela seção Atalhos; preservados criação, edição, remoção, execução e histórico.
+- Páginas existentes mantidas e inseridas em áreas com rolagem para acesso aos controles em janelas menores.
+- Geometria topográfica vetorizada e armazenada em cache; relógio compartilhado, delta time e pausa de animações com janela oculta/minimizada.
+- Reação visual à amplitude real do microfone e ao PCM da fala sintetizada quando decodificável pelo Qt.
+- Saudação da palavra de ativação executada em worker, evitando o TTS diretamente na thread da interface.
+
+### Corrigido
+
+- Versão interna e indicação no README atualizadas para 1.19.0; a constante ainda estava em 1.17.1.
+- Atualizador e URL de clonagem alinhados ao repositório `JoaoPedroSouzza/Assistente-Ikuromimy`.
+- Removidos do índice do Git 12 arquivos `.pyc` previamente rastreados; caches locais preservados e relatórios do redesign ignorados.
+
+### Compatibilidade e limites
+
+- Preservados música, IA/Ollama, amigos/Firebase, modos, controle remoto, configurações, histórico, voz e atualização.
+- O vidro utiliza transparência, sem Acrylic/Mica. As metas de animação não garantem 60 FPS em qualquer hardware.
+- A sincronização da onda de TTS é aproximada com o player atual; sensores indisponíveis exibem `—`.
+- Anexos neste fluxo são texto; não há interpretação de PDF ou imagens. A transcrição de voz existente continua online.
+- Validação local do redesign: 260 testes aprovados, cobertura combinada de 73,51% e análise AST de 66 arquivos sem achados. Não representa validação manual de todos os serviços/hardwares reais.
+
 ## [1.18.0] — Testes automatizados, qualidade e organização do projeto
 
-## Adicionado
+### Adicionado
 
 Estrutura de testes automatizados: criada uma base dedicada para testar os principais componentes do Assistente Ikuromimy e detectar regressões antes da publicação de novas versões.
 
@@ -21,7 +59,7 @@ Testes isolados: partes do sistema que dependem de serviços externos ou recurso
 
 Validação de funcionalidades: adicionadas verificações para garantir que funções importantes continuem apresentando o comportamento esperado depois de alterações ou refatorações.
 
-## Melhorado
+### Melhorado
 
 Organização interna do projeto: revisão da estrutura e separação de responsabilidades entre os módulos, facilitando manutenção, depuração e desenvolvimento de novas funcionalidades.
 
@@ -33,7 +71,7 @@ Fluxo de desenvolvimento: o projeto passa a ter uma base mais preparada para tes
 
 Manutenibilidade: módulos importantes do sistema foram preparados para serem validados individualmente, facilitando futuras refatorações.
 
-## Corrigido
+### Corrigido
 
 Ajustados problemas encontrados durante a análise e validação dos módulos do projeto.
 
@@ -41,7 +79,7 @@ Corrigidas inconsistências identificadas durante os testes e a reorganização 
 
 Integração do código local com o branch principal do repositório, resolvendo conflitos entre os históricos das duas versões do projeto.
 
-## Manutenção
+### Manutenção
 
 Revisão de interface.py e escravo.py, responsáveis pela inicialização da interface e processamento dos comandos.
 
@@ -57,7 +95,7 @@ Revisão das páginas da interface em ui/pages/ e dos componentes responsáveis 
 
 Ajustes no ikuro.spec e na estrutura utilizada para geração do executável.
 
-## Desenvolvimento
+### Desenvolvimento
 
 A versão 1.18.0 estabelece uma base de testes e qualidade para o Assistente Ikuromimy. O objetivo é tornar o desenvolvimento das próximas versões mais seguro, permitindo realizar refatorações, otimizações e adicionar novas funcionalidades com menor risco de quebrar recursos já existentes.
 

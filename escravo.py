@@ -31,6 +31,7 @@ import pyautogui
 import psutil
 from gtts import gTTS
 from playsound import playsound
+from core.visual_events import publish
 
 try:
     import win32gui
@@ -127,10 +128,13 @@ def falar(texto: str) -> None:
     try:
         tts = gTTS(text=texto, lang=IDIOMA_VOZ, slow=False)
         tts.save(str(arquivo))
+        publish("speech_source", str(arquivo))
+        publish("speaking", True)
         playsound(str(arquivo))
     except Exception as e:
         print(f"⚠️  Não consegui falar ({e}). Seguindo só com texto.")
     finally:
+        publish("speaking", False)
         if arquivo.exists():
             try:
                 arquivo.unlink()
